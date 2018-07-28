@@ -38,4 +38,37 @@ app.use(function(err, req, res, next) {
   res.render('error');
 });
 
+//mqtt example
+
+var mqtt = require('mqtt');
+//test
+var options = {
+  username:"98072d26b785",
+  password:'UNIHACK_Bosch85',
+  keepalive: 3600
+};
+var client  = mqtt.connect('tcp://bosch.unihack.net/mqtt',options);
+
+client.on('connect', function () {
+  console.log("connected")
+  client.subscribe('telemetry/98072d26b785/#')
+  client.publish('telemetry/98072d26b785/#')
+})
+
+client.on('message', function (topic, message) {
+  // message is Buffer
+  console.log(message.toString())
+  // continue here to post it to the database
+  
+
+
+
+
+})
+
+
+
+
+
+
 module.exports = app;
