@@ -45,21 +45,46 @@ var mqtt = require('mqtt');
 var options = {
   username:"98072d26b785",
   password:'UNIHACK_Bosch85',
-  keepalive: 3600
+  keepalive: 5
 };
 var client  = mqtt.connect('tcp://bosch.unihack.net/mqtt',options);
+var firebase = require ('firebase');
+var config = {
+  apiKey: "AIzaSyCNdOKbwCnyNp5NnTTf4CMUyNHRERp3B0I",
+  authDomain: "firebendr-b062d.firebaseapp.com",
+  databaseURL: "https://firebendr-b062d.firebaseio.com/"
+};
+
+firebase.initializeApp(config);
+
+console.log(firebase.app().name);
 
 client.on('connect', function () {
   console.log("connected")
-  client.subscribe('telemetry/98072d26b785/#')
-  client.publish('telemetry/98072d26b785/#')
-})
+  client.subscribe('telemetry/98072d26b785/humidity')
+  client.publish('telemetry/98072d26b785/humidity')
+});
 
 client.on('message', function (topic, message) {
   // message is Buffer
-  console.log(message.toString())
-  // continue here to post it to the database
-  
+  var message_str = message; //convert byte array to string
+	// message_str = message_str.replace(/\n$/, ''); //remove new line
+	// message_str = message_str.replace(/\$/, ''); //remove new line
+  if (message_str != ""){
+    console.log(JSON.parse(message_str.toString()));
+
+    // continue here to post it to the database
+    var fireListRef = firebase.database().ref('FireData');
+    var newFireRef = fireListRef.push();
+
+    newFireRef.set(JSON.parse(message_str.toString()));
+    // We've appended a new message to the message_list location.
+    // var path = newMessageRef.toString();
+    console.log(newFireRef);
+    // // path will be something like
+    // // 'https://sample-app.firebaseio.com/message_list/-IKo28nwJLH0Nc5XeFmj'
+  }
+
 
 
 
